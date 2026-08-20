@@ -26,6 +26,9 @@ STATUS_COLORS = {"Active": NAVY, "In the Money": GREEN, "Expired": GRAY, "Transa
 # ---------------------------------------------------------------- styles
 st.markdown(f"""
 <style>
+    .stApp {{
+        background: linear-gradient(180deg, #eef2f8 0%, #fbfcfe 22%, #ffffff 55%);
+    }}
     .block-container {{ padding-top: 1rem; padding-bottom: 3rem; max-width: 480px; }}
     .ecng-header {{
         position: relative; background-color: {NAVY}; padding: 16px 20px 14px 20px;
@@ -44,16 +47,24 @@ st.markdown(f"""
     .ecng-ticker .item {{ color: #d9e2ec; font-size: 0.8rem; font-weight: 500; white-space: nowrap; }}
     .ecng-ticker .item b {{ color: {GOLD}; font-weight: 700; margin-left: 6px; }}
 
-    /* Home nav buttons — big, brand-colored, tappable */
+    /* Home nav buttons — shared base: big, gradient fill, shadow, tappable */
     div[data-testid="stVerticalBlock"] .stButton > button {{
-        width: 100%; padding: 22px 18px; font-size: 1.05rem; font-weight: 700;
-        border-radius: 12px; border: none; text-align: left;
-        background-color: {NAVY}; color: #fff; margin-bottom: 12px;
+        width: 100%; padding: 24px 20px; font-size: 1.08rem; font-weight: 700;
+        border-radius: 14px; border: none; text-align: left; color: #fff;
+        margin-bottom: 10px; box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+        transition: transform 0.08s ease, box-shadow 0.08s ease;
     }}
     div[data-testid="stVerticalBlock"] .stButton > button:hover {{
-        background-color: #003d8f; color: #fff;
+        transform: translateY(-1px); box-shadow: 0 8px 18px rgba(0,0,0,0.22); color: #fff;
     }}
-    .nav-caption {{ font-size: 0.78rem; color: #6b7280; margin: -8px 0 16px 4px; }}
+    div[data-testid="stVerticalBlock"] .stButton > button:active {{ transform: translateY(0px); }}
+
+    /* Per-button color identity, matched to the same meanings used elsewhere in the app */
+    .st-key-nav_outstanding_wrap button {{ background: linear-gradient(135deg, #003d8f 0%, {NAVY} 100%); }}
+    .st-key-nav_transacted_wrap button {{ background: linear-gradient(135deg, #ffdb4d 0%, {GOLD} 100%); color: {NAVY} !important; }}
+    .st-key-nav_pricing_wrap button {{ background: linear-gradient(135deg, #5ecb4a 0%, {GREEN} 100%); }}
+
+    .nav-caption {{ font-size: 0.78rem; color: #6b7280; margin: -4px 0 16px 4px; }}
 
     .ecng-card {{
         border: 1px solid #e6e6e6; border-left: 4px solid var(--accent, {GRAY});
@@ -346,14 +357,25 @@ def page_home(snapshot):
         )
     render_freshness_banner(snapshot)
 
-    st.write("")
-    st.button("📋  Outstanding", key="nav_outstanding", on_click=go, args=("outstanding",), use_container_width=True)
-    st.markdown('<div class="nav-caption">Active, In the Money, and Expired terms</div>', unsafe_allow_html=True)
+    swaps = snapshot.get("swaps", [])
+    outstanding_count = sum(1 for s in swaps if s["status"] in ("Active", "In the Money", "Expired"))
+    transacted_count = sum(1 for s in swaps if s["status"] == "Transacted")
+    pricing_count = len(snapshot.get("pricing", []))
 
-    st.button("💰  Transacted", key="nav_transacted", on_click=go, args=("transacted",), use_container_width=True)
+    st.write("")
+    with st.container(key="nav_outstanding_wrap"):
+        st.button(f"📋  Outstanding  ·  {outstanding_count}", key="nav_outstanding",
+                  on_click=go, args=("outstanding",), use_container_width=True)
+    st.markdown('<div class="nav-caption">Active + In the Money together, Expired filterable separately</div>', unsafe_allow_html=True)
+
+    with st.container(key="nav_transacted_wrap"):
+        st.button(f"💰  Transacted  ·  {transacted_count}", key="nav_transacted",
+                  on_click=go, args=("transacted",), use_container_width=True)
     st.markdown('<div class="nav-caption">Deals that have been executed</div>', unsafe_allow_html=True)
 
-    st.button("🏷️  Pricing", key="nav_pricing", on_click=go, args=("pricing",), use_container_width=True)
+    with st.container(key="nav_pricing_wrap"):
+        st.button(f"🏷️  Pricing  ·  {pricing_count} curve" + ("s" if pricing_count != 1 else ""),
+                  key="nav_pricing", on_click=go, args=("pricing",), use_container_width=True)
     st.markdown('<div class="nav-caption">Current gas and power pricing curves</div>', unsafe_allow_html=True)
 
 
@@ -370,11 +392,14 @@ def page_outstanding(snapshot):
     with col1:
         sel_product = st.selectbox("Product", ["All products"] + products)
     with col2:
-        view = st.selectbox("View", ["Active", "In the Money", "Expired"])
+        view = st.selectbox("View", ["Outstanding", "Expired"])
 
     filtered = [s for s in swaps if sel_rep == "All reps" or s["rep"] == sel_rep]
     filtered = [s for s in filtered if sel_product == "All products" or s["product"] == sel_product]
-    filtered = [s for s in filtered if s["status"] == view]
+    if view == "Outstanding":
+        filtered = [s for s in filtered if s["status"] in ("Active", "In the Money")]
+    else:
+        filtered = [s for s in filtered if s["status"] == view]
     filtered.sort(key=sort_key)
 
     st.markdown(f"**{len(filtered)}** {view.lower()} deal(s)")
