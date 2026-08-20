@@ -283,11 +283,11 @@ def render_deal_card(s):
         if savings is None:
             savings_html = f'<span style="color:{GRAY};">—</span>'
         elif savings < 0:
-            savings_html = f'<span style="color:{GREEN};font-weight:700;">▼ ${abs(savings):,.2f} saved</span>'
+            savings_html = f'<span style="color:{GREEN};font-weight:700;">▼ Transacted ${abs(savings):,.2f} Below Target</span>'
         elif savings > 0:
-            savings_html = f'<span style="color:{RED};font-weight:700;">▲ ${savings:,.2f} over target</span>'
+            savings_html = f'<span style="color:{RED};font-weight:700;">▲ Transacted ${savings:,.2f} Above Target</span>'
         else:
-            savings_html = '<span style="font-weight:700;">On target</span>'
+            savings_html = '<span style="font-weight:700;">Transacted On Target</span>'
         notes = s.get("notes")
         notes_row = (
             f'<div class="row"><div><span class="ecng-label">Notes</span>'
