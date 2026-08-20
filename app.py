@@ -36,7 +36,6 @@ st.markdown(f"""
     }}
     .ecng-header h1 {{ color: #fff; margin: 0; font-size: 1.35rem; position: relative; z-index: 1; }}
     .ecng-header p {{ color: #b9c9e2; margin: 2px 0 0 0; font-size: 0.8rem; position: relative; z-index: 1; }}
-    .ecng-header svg {{ position: absolute; bottom: 0; left: 0; right: 0; width: 100%; height: 36px; opacity: 0.5; }}
 
     .ecng-ticker {{
         background-color: {NAVY}; border-top: 1px solid rgba(255,255,255,0.15);
@@ -128,10 +127,6 @@ def render_header():
     <div class="ecng-header">
         <h1>ECNG Energy Group</h1>
         <p>Outstanding terms &middot; pricing &middot; mobile snapshot</p>
-        <svg viewBox="0 0 800 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <polyline points="0,45 80,30 160,38 240,15 320,25 400,10 480,22 560,8 640,18 720,5 800,14"
-                      fill="none" stroke="{GOLD}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
     </div>
     """, unsafe_allow_html=True)
 
@@ -140,7 +135,10 @@ def render_ticker(snapshot):
     gas_strip = next((s for s in snapshot.get("pricing", []) if s["name"] == "Gas Strip"), None)
     if not gas_strip or not gas_strip["rows"]:
         return
-    nearest = gas_strip["rows"][0]
+    # forward term (the one after prompt), since ECNG buys forward — falls
+    # back to the first row if there's only one available
+    rows = gas_strip["rows"]
+    nearest = rows[1] if len(rows) > 1 else rows[0]
     items = "".join(
         f'<span class="item">{h}<b>{nearest["prices"].get(h, "—")}</b></span>'
         for h in gas_strip["hubs"]
@@ -366,7 +364,7 @@ def page_home(snapshot):
     with st.container(key="nav_outstanding_wrap"):
         st.button(f"📋  Outstanding  ·  {outstanding_count}", key="nav_outstanding",
                   on_click=go, args=("outstanding",), use_container_width=True)
-    st.markdown('<div class="nav-caption">Active + In the Money together, Expired filterable separately</div>', unsafe_allow_html=True)
+    st.markdown('<div class="nav-caption">Shows Active + In the Money together, filterable individually</div>', unsafe_allow_html=True)
 
     with st.container(key="nav_transacted_wrap"):
         st.button(f"💰  Transacted  ·  {transacted_count}", key="nav_transacted",
@@ -392,11 +390,11 @@ def page_outstanding(snapshot):
     with col1:
         sel_product = st.selectbox("Product", ["All products"] + products)
     with col2:
-        view = st.selectbox("View", ["Outstanding", "Expired"])
+        view = st.selectbox("View", ["Active + In the Money", "Active", "In the Money", "Expired"])
 
     filtered = [s for s in swaps if sel_rep == "All reps" or s["rep"] == sel_rep]
     filtered = [s for s in filtered if sel_product == "All products" or s["product"] == sel_product]
-    if view == "Outstanding":
+    if view == "Active + In the Money":
         filtered = [s for s in filtered if s["status"] in ("Active", "In the Money")]
     else:
         filtered = [s for s in filtered if s["status"] == view]
