@@ -1,1 +1,19 @@
-{"generated_at": null, "swaps": [], "pricing": []}
+{
+  "generated_at": "2026-08-20T09:00",
+  "swaps": [
+    {"product": "Gas", "client": "Sample Client A", "rep": "Karen", "start_date": "2026-11-01", "end_date": "2027-10-31", "volume": 500, "delivery_type": "Dawn 5A", "target": 1.95, "market": 1.90, "expiry_date": "2026-10-15", "sa_number": "SA0000000-001", "transacted_date": null, "transacted_price": null, "savings_vs_target": null, "notes": null, "status": "Active", "days_to_expiry": 56},
+    {"product": "Gas", "client": "Demo Manufacturing Inc", "rep": "Greg", "start_date": "2026-11-01", "end_date": "2027-10-31", "volume": 350, "delivery_type": "Aeco FP C/G", "target": 2.20, "market": 2.35, "expiry_date": "2026-09-30", "sa_number": "SA0000000-002", "transacted_date": null, "transacted_price": null, "savings_vs_target": null, "notes": null, "status": "In the Money", "days_to_expiry": 41},
+    {"product": "Power", "client": "Test Energy Co", "rep": "Paul", "start_date": "2026-12-01", "end_date": "2027-12-31", "volume": 750, "delivery_type": "7x24", "target": 90.00, "market": 88.50, "expiry_date": "2026-08-05", "sa_number": "SA0000000-003", "transacted_date": null, "transacted_price": null, "savings_vs_target": null, "notes": null, "status": "Expired", "days_to_expiry": -15},
+    {"product": "Gas", "client": "Placeholder Foods Ltd", "rep": "Karen", "start_date": "2026-11-01", "end_date": "2028-10-31", "volume": 620, "delivery_type": "Parkway 5A", "target": 1.85, "market": 1.75, "expiry_date": "2026-11-01", "sa_number": "SA0000000-004", "transacted_date": "2026-08-10", "transacted_price": 1.80, "savings_vs_target": -3100.0, "notes": "Sample note for testing", "status": "Transacted", "days_to_expiry": null},
+    {"product": "AB Power", "client": "Fictional Retail Group", "rep": "Greg", "start_date": "2027-01-01", "end_date": "2027-12-31", "volume": 1, "delivery_type": "AB LF", "target": 72.00, "market": null, "expiry_date": "2026-12-01", "sa_number": "SA0000000-005", "transacted_date": null, "transacted_price": null, "savings_vs_target": null, "notes": null, "status": "Active", "days_to_expiry": 103}
+  ],
+  "pricing": [
+    {"name": "Gas Strip", "hubs": ["Aeco FP C/G", "Dawn 5a", "Parkway 5a"], "rows": [
+      {"period_label": "Prompt - Oct26", "start_period": "2026-08-01", "end_period": "2026-10-31", "prices": {"Aeco FP C/G": "$1.65", "Dawn 5a": "$2.00", "Parkway 5a": "$2.05"}},
+      {"period_label": "Nov26-Oct27", "start_period": "2026-11-01", "end_period": "2027-10-31", "prices": {"Aeco FP C/G": "$2.30", "Dawn 5a": "$1.90", "Parkway 5a": "$2.20"}}
+    ]},
+    {"name": "Power Seasonal", "hubs": ["7x24", "5x16", "AB LF"], "rows": [
+      {"period_label": "Bal26", "start_period": "2026-08-01", "end_period": "2026-12-31", "prices": {"7x24": "$98.00", "5x16": "$112.00", "AB LF": "—"}}
+    ]}
+  ]
+}
