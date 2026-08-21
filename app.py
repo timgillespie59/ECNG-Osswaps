@@ -96,7 +96,7 @@ st.markdown(f"""
     .nav-caption {{ font-size: 0.78rem; color: #6b7280; margin: -4px 0 16px 4px; }}
 
     .ecng-card {{
-        border: 1px solid #eceff2; border-left: 4px solid var(--accent, {GRAY});
+        border: 1px solid #eceff2; border-left: var(--accent-width, 4px) solid var(--accent, {GRAY});
         border-radius: 14px; padding: 12px 16px; margin-bottom: 10px; background: #fff;
         box-shadow: 0 3px 10px rgba(0,0,0,0.06);
     }}
@@ -255,15 +255,19 @@ def price_gap(target, market):
     return round(abs(target - market), 2)
 
 
-def urgency_color(target, market):
+def urgency_style(status, target, market):
+    """Returns (color, border_width). In the Money is always green and a
+    touch thicker, regardless of price gap — it's a status signal, not a
+    gap signal. Everything else is colored by how far market has moved
+    from target: yellow up to 20c, blue beyond that."""
+    if status == "In the Money":
+        return GREEN, "6px"
     gap = price_gap(target, market)
     if gap is None:
-        return GRAY
-    if gap <= 0.05:
-        return GOLD
-    if gap > 0.20:
-        return GRAY
-    return NAVY
+        return GRAY, "4px"
+    if gap > 0.10:
+        return NAVY, "4px"   # "blue"
+    return GOLD, "4px"       # "yellow" — covers 0 up to 10c
 
 
 def sort_key(s):
@@ -342,11 +346,11 @@ def render_deal_card(s):
             '</div>'
         )
     else:
-        color = urgency_color(s.get("target"), s.get("market"))
+        color, width = urgency_style(s["status"], s.get("target"), s.get("market"))
         days = s.get("days_to_expiry")
         days_str = f"{days}d left" if days is not None else "—"
         return (
-            f'<div class="ecng-card" style="--accent:{color};">'
+            f'<div class="ecng-card" style="--accent:{color}; --accent-width:{width};">'
             f'<div class="client">{s["client"]}</div>'
             f'<div class="meta"><span class="ecng-avatar">{rep_initials(s["rep"])}</span>'
             f'{s["rep"]} &middot; {s["product"]} &middot; {s.get("delivery_type") or ""}</div>'
