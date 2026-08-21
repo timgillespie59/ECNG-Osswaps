@@ -38,7 +38,7 @@ st.markdown(f"""
     .block-container {{ padding-top: 1rem; padding-bottom: 3rem; max-width: 480px; }}
     .ecng-header {{
         position: relative; background-color: {NAVY}; padding: 16px 20px 14px 20px;
-        border-radius: 8px 8px 0 0; margin-bottom: 0; overflow: hidden;
+        border-radius: 16px; margin-bottom: 10px; overflow: hidden;
     }}
     .ecng-header-row {{ display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }}
     .ecng-logo-badge {{
@@ -49,15 +49,28 @@ st.markdown(f"""
     .ecng-logo-badge img {{ max-width: 24px; max-height: 28px; width: auto; height: auto; }}
     .ecng-header h1 {{ color: #fff; margin: 0; font-size: 1.35rem; font-family: 'Poppins', sans-serif; }}
     .ecng-header p {{ color: #b9c9e2; margin: 2px 0 0 0; font-size: 0.8rem; }}
-    .ecng-header-divider {{ height: 3px; background-color: {GOLD}; }}
-    .ecng-header-divider.rounded {{ border-radius: 0 0 8px 8px; margin-bottom: 18px; }}
+    .ecng-header-accent {{
+        height: 1px; width: 56px; background-color: rgba(255,255,255,0.35);
+        margin: 10px 0 0 0; position: relative; z-index: 1;
+    }}
 
     .ecng-ticker {{
-        background-color: {NAVY}; border-radius: 0 0 8px 8px; margin-top: 0; margin-bottom: 6px;
-        padding: 12px 20px 10px 20px; display: flex; flex-wrap: wrap; gap: 24px;
-        font-variant-numeric: tabular-nums;
+        background-color: {NAVY}; border-radius: 16px; margin-top: 0; margin-bottom: 6px;
+        padding: 10px 0; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.12);
     }}
-    .ecng-ticker .item {{ color: #d9e2ec; font-size: 0.8rem; font-weight: 500; white-space: nowrap; }}
+    .ecng-ticker-track {{
+        display: inline-flex; gap: 28px; white-space: nowrap;
+        animation: ecng-scroll 22s linear infinite;
+        padding-left: 20px;
+    }}
+    .ecng-ticker-track:hover, .ecng-ticker-track:active {{
+        animation-play-state: paused;
+    }}
+    @keyframes ecng-scroll {{
+        from {{ transform: translateX(0); }}
+        to {{ transform: translateX(-50%); }}
+    }}
+    .ecng-ticker .item {{ color: #d9e2ec; font-size: 0.8rem; font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }}
     .ecng-ticker .item b {{ color: {GOLD}; font-weight: 700; margin-left: 6px; }}
 
     .ecng-timestamp-pill {{
@@ -175,11 +188,11 @@ def render_header(with_ticker=False):
             <div class="ecng-logo-badge"><img src="data:image/png;base64,{LOGO_B64}" alt="ECNG logo" /></div>
             <div>
                 <h1>ECNG Energy Group</h1>
-                <p>Outstanding terms &middot; pricing &middot; mobile snapshot</p>
+                <p>Outstanding terms &middot; Pricing &middot; Recently Transacted</p>
             </div>
         </div>
+        <div class="ecng-header-accent"></div>
     </div>
-    <div class="ecng-header-divider{'' if with_ticker else ' rounded'}"></div>
     """, unsafe_allow_html=True)
 
 
@@ -187,18 +200,22 @@ def render_ticker(snapshot):
     gas_strip = next((s for s in snapshot.get("pricing", []) if s["name"] == "Gas Strip"), None)
     if not gas_strip or not gas_strip["rows"]:
         return
-    # forward term (the one after prompt), since ECNG buys forward — falls
-    # back to the first row if there's only one available
-    rows = gas_strip["rows"]
-    nearest = rows[1] if len(rows) > 1 else rows[0]
-    items = "".join(
-        f'<span class="item">{h}<b>{nearest["prices"].get(h, "—")}</b></span>'
-        for h in gas_strip["hubs"]
-    )
+    rows = gas_strip["rows"][:2]  # Prompt-Oct26 and the next forward term
+    hubs = gas_strip["hubs"]
+
+    def build_items(rows):
+        chunks = []
+        for row in rows:
+            chunks.append(f'<span class="item" style="color:#8fa5c7;">{row["period_label"].upper()}</span>')
+            for h in hubs:
+                chunks.append(f'<span class="item">{h}<b>{row["prices"].get(h, "—")}</b></span>')
+        return "".join(chunks)
+
+    # duplicate the full sequence once so translateX(-50%) loops seamlessly
+    items_html = build_items(rows) + build_items(rows)
+
     st.markdown(
-        f'<div class="ecng-ticker">'
-        f'<span class="item" style="color:#8fa5c7;">{nearest["period_label"].upper()}</span>'
-        f'{items}</div>',
+        f'<div class="ecng-ticker"><div class="ecng-ticker-track">{items_html}</div></div>',
         unsafe_allow_html=True,
     )
 
