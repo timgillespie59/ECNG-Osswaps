@@ -28,6 +28,8 @@ LOGO_B64 = "iVBORw0KGgoAAAANSUhEUgAAAIAAAAB/CAYAAAAn+soHAAA48klEQVR4nO19d3hVxfb2
 # ---------------------------------------------------------------- styles
 st.markdown(f"""
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap');
+
     .stApp {{
         background: linear-gradient(180deg, #eef2f8 0%, #fbfcfe 22%, #ffffff 55%);
     }}
@@ -43,7 +45,7 @@ st.markdown(f"""
         box-shadow: 0 2px 6px rgba(0,0,0,0.25);
     }}
     .ecng-logo-badge img {{ width: 30px; height: 30px; }}
-    .ecng-header h1 {{ color: #fff; margin: 0; font-size: 1.35rem; }}
+    .ecng-header h1 {{ color: #fff; margin: 0; font-size: 1.35rem; font-family: 'Poppins', sans-serif; }}
     .ecng-header p {{ color: #b9c9e2; margin: 2px 0 0 0; font-size: 0.8rem; }}
     .ecng-header-divider {{ height: 3px; background-color: {GOLD}; }}
     .ecng-header-divider.rounded {{ border-radius: 0 0 8px 8px; margin-bottom: 18px; }}
@@ -65,6 +67,7 @@ st.markdown(f"""
     /* Home nav buttons — shared base: big, gradient fill, shadow, tappable, pill-shaped */
     div[data-testid="stVerticalBlock"] .stButton > button {{
         width: 100%; padding: 24px 20px; font-size: 1.08rem; font-weight: 700;
+        font-family: 'Poppins', sans-serif;
         border-radius: 40px; border: none; text-align: left; color: #fff;
         margin-bottom: 10px; box-shadow: 0 6px 14px rgba(0,0,0,0.18);
         transition: transform 0.08s ease, box-shadow 0.08s ease;
@@ -79,11 +82,23 @@ st.markdown(f"""
     .st-key-nav_transacted_wrap button {{ background: linear-gradient(135deg, #ffdb4d 0%, {GOLD} 100%); color: {NAVY} !important; }}
     .st-key-nav_pricing_wrap button {{ background: linear-gradient(135deg, #5ecb4a 0%, {GREEN} 100%); }}
 
+    /* Back button — deliberately small and high-contrast, distinct from the big primary nav buttons */
+    .st-key-back_home_wrap button {{
+        width: auto !important; padding: 7px 18px !important; font-size: 0.82rem !important;
+        font-family: inherit !important; border-radius: 999px !important;
+        background: #fff !important; color: {NAVY} !important; border: 2px solid {NAVY} !important;
+        box-shadow: none !important; margin-bottom: 14px !important;
+    }}
+    .st-key-back_home_wrap button:hover {{
+        background: {NAVY} !important; color: #fff !important;
+    }}
+
     .nav-caption {{ font-size: 0.78rem; color: #6b7280; margin: -4px 0 16px 4px; }}
 
     .ecng-card {{
-        border: 1px solid #e6e6e6; border-left: 4px solid var(--accent, {GRAY});
-        border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; background: #fff;
+        border: 1px solid #eceff2; border-left: 4px solid var(--accent, {GRAY});
+        border-radius: 14px; padding: 12px 16px; margin-bottom: 10px; background: #fff;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.06);
     }}
     .ecng-card .client {{ font-weight: 700; font-size: 0.98rem; color: {DARK_GRAY}; }}
     .ecng-card .meta {{ font-size: 0.8rem; color: #6b7280; margin-top: 1px; }}
@@ -91,26 +106,31 @@ st.markdown(f"""
         display: flex; justify-content: space-between; align-items: center;
         margin-top: 6px; font-size: 0.85rem; font-variant-numeric: tabular-nums;
     }}
+    .ecng-card .row + .row {{
+        border-top: 1px solid #f0f2f5; padding-top: 7px; margin-top: 8px;
+    }}
     .ecng-label {{
         display: block; font-size: 0.65rem; text-transform: uppercase;
-        letter-spacing: 0.04em; color: #9aa1ab; font-weight: 600; margin-bottom: 1px;
+        letter-spacing: 0.07em; color: #9aa1ab; font-weight: 500; margin-bottom: 1px;
     }}
     .ecng-value {{ font-size: 0.92rem; color: {DARK_GRAY}; font-weight: 600; }}
 
     div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {{
-        border-color: {NAVY} !important; border-radius: 8px !important;
+        border-color: {NAVY} !important; border-radius: 14px !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }}
     div[data-testid="stSelectbox"] label {{ color: {NAVY} !important; font-weight: 600; font-size: 0.8rem !important; }}
 
     .ecng-avatar {{
         display: inline-flex; align-items: center; justify-content: center;
-        width: 20px; height: 20px; border-radius: 50%; background-color: {NAVY}; color: {GOLD};
+        width: 20px; height: 20px; border-radius: 50%;
+        background: linear-gradient(135deg, #003d8f 0%, {NAVY} 100%); color: {GOLD};
         font-size: 0.6rem; font-weight: 700; margin-right: 5px; vertical-align: middle;
     }}
 
     .ecng-price-card {{
-        border: 1px solid #e6e6e6; border-radius: 8px; padding: 10px 14px;
-        margin-bottom: 6px; background: #fafbfc;
+        border: 1px solid #eceff2; border-radius: 12px; padding: 10px 14px;
+        margin-bottom: 6px; background: #fafbfc; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }}
     .ecng-price-card .hub {{ font-size: 0.78rem; color: #6b7280; }}
     .ecng-price-card .price {{ font-size: 1.05rem; font-weight: 700; color: {NAVY}; }}
@@ -123,12 +143,19 @@ st.markdown(f"""
     .ecng-curve-row .ecng-price-card {{ flex: 1 1 90px; margin-bottom: 0; }}
     .ecng-section-pill {{
         background-color: {NAVY}; color: #fff; font-weight: 700; font-size: 0.82rem;
+        font-family: 'Poppins', sans-serif;
         padding: 6px 14px; border-radius: 999px; display: inline-block; margin-bottom: 8px;
+        box-shadow: 0 3px 8px rgba(0,47,108,0.25);
+    }}
+    .ecng-page-title-divider {{
+        border: none; height: 2px; background-color: {GOLD}; opacity: 0.8;
+        margin: 4px 0 16px 0; width: 60px;
     }}
 
     .ecng-empty {{
-        background-color: #f5f6f8; border: 1px dashed #cdd3da; border-left: 4px solid {GRAY};
-        border-radius: 6px; padding: 12px 14px; color: {DARK_GRAY}; font-size: 0.85rem;
+        background-color: #f8f9fb; border: 1px solid #e6e9ee; border-left: 4px solid {GRAY};
+        border-radius: 12px; padding: 16px 16px; color: {DARK_GRAY}; font-size: 0.85rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }}
     .ecng-stale {{
         background-color: #fff8e1; border: 1px solid {GOLD}; border-radius: 6px;
@@ -400,7 +427,8 @@ def page_home(snapshot):
 
 
 def page_outstanding(snapshot):
-    st.button("← Home", on_click=go, args=("home",))
+    with st.container(key="back_home_wrap"):
+        st.button("← Home", on_click=go, args=("home",))
     render_header()
 
     swaps = snapshot.get("swaps", [])
@@ -425,14 +453,15 @@ def page_outstanding(snapshot):
     st.markdown(f"**{len(filtered)}** {view.lower()} deal(s)")
 
     if not filtered:
-        st.markdown('<div class="ecng-empty">Nothing here right now.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="ecng-empty">📭 &nbsp;Nothing here right now.</div>', unsafe_allow_html=True)
     else:
         for s in filtered:
             st.markdown(render_deal_card(s), unsafe_allow_html=True)
 
 
 def page_transacted(snapshot):
-    st.button("← Home", on_click=go, args=("home",))
+    with st.container(key="back_home_wrap"):
+        st.button("← Home", on_click=go, args=("home",))
     render_header()
 
     swaps = [s for s in snapshot.get("swaps", []) if s["status"] == "Transacted"]
@@ -449,16 +478,18 @@ def page_transacted(snapshot):
     st.markdown(f"**{len(filtered)}** transacted deal(s)")
 
     if not filtered:
-        st.markdown('<div class="ecng-empty">No transacted deals match the current filters.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="ecng-empty">📭 &nbsp;No transacted deals match the current filters.</div>', unsafe_allow_html=True)
     else:
         for s in filtered:
             st.markdown(render_deal_card(s), unsafe_allow_html=True)
 
 
 def page_pricing(snapshot):
-    st.button("← Home", on_click=go, args=("home",))
+    with st.container(key="back_home_wrap"):
+        st.button("← Home", on_click=go, args=("home",))
     render_header()
     st.subheader("🏷️ Current Pricing")
+    st.markdown('<div class="ecng-page-title-divider"></div>', unsafe_allow_html=True)
 
     for section in snapshot.get("pricing", []):
         st.markdown(f'<div class="ecng-section-pill">{section["name"]}</div>', unsafe_allow_html=True)
@@ -489,7 +520,7 @@ snapshot = load_snapshot()
 if not snapshot:
     render_header()
     st.markdown(
-        '<div class="ecng-empty">No data yet — waiting on the first snapshot.</div>',
+        '<div class="ecng-empty">📭 &nbsp;No data yet — waiting on the first snapshot.</div>',
         unsafe_allow_html=True,
     )
     st.stop()
